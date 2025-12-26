@@ -1,10 +1,10 @@
 [package]
 name = "pq-file-crypt"
-version = "0.1.0-placeholder"
+version = "0.1.0"
 edition = "2021"
 authors = ["Your Name <your.email@example.com>"]
 description = "Placeholder for post-quantum secure file encryption crate. Full audited implementation pending."
-repository = "https://github.com/yourusername/pq-file-crypt"
+repository = "https://github.com/Slurp9187/pq-file-crypt"
 license = "MIT OR Apache-2.0"
 keywords = ["cryptography", "encryption", "post-quantum", "file", "streaming"]
 categories = ["cryptography", "file-system"]

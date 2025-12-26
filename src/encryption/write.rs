@@ -28,10 +28,10 @@ pub struct HeaderParams<'a> {
     pub nonce: &'a GcmNonce12,
 }
 
-/// Stub write header.
+/// Stub for PQ-File-Crypt header writing (dynamic for AES/Chacha, no-KDF).
 ///
-/// TODO: Write full PQ header with extensions and PQ CT.
-/// For now, writes basic magic + version.
+/// TODO: Write "PQ-CRYPT" magic, version, conditional KDF fields, extensions (cipher select), PQ CT, nonce, MAC.
+/// For placeholder: Unimplemented.
 pub fn write_header<W: Write>(mut _writer: W, _params: HeaderParams) -> io::Result<()> {
     unimplemented!("Header writing not implemented in placeholder");
 }

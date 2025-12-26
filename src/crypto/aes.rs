@@ -47,7 +47,7 @@ use std::io::{Read, Result as IoResult, Write};
 //! Magic bytes for PQ-AES file header.
 pub const MAGIC: &[u8; 6] = b"PQ-AES";
 
-//! Current version (v1: Basic PQ-GCM, extensible extensions).
+//! Version for the prototype spec (v1.0, pending audit).
 pub const VERSION: u8 = 0x01;
 
 //! Size of Argon2id salt for password derivation.
@@ -62,8 +62,8 @@ pub const TAG_SIZE: usize = 16;
 //! Size of X-Wing PQ ciphertext (ML-KEM-1024 CT + X25519 PK: 1568 + 32).
 pub const XWING_CT_SIZE: usize = 1600;
 
-//! Fixed header size (magic + version + reserved + salt + iter + mem + para + ext_len).
-pub const FIXED_HEADER_SIZE: usize = MAGIC.len() + 1 + 2 + SALT_SIZE + 4 + 4 + 4 + 2;
+//! Fixed header size (approximate; dynamic per spec, reuses common.rs for no-KDF variance).
+pub const FIXED_HEADER_SIZE: usize = crate::common::FIXED_HEADER_SIZE; // Reuses common for consistency
 
 //! Extensions length field size (u16).
 pub const EXTENSIONS_LEN_SIZE: usize = 2;

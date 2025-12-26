@@ -1,3 +1,9 @@
+# PQ-File-Crypt Protocol Flowchart
+
+This Mermaid diagram outlines the high-level architecture for the PQ-File-Crypt system, including password/MFA input, key derivation, bootstrap decryption, database key management, and per-file encryption. It emphasizes post-quantum (PQ) security via hybrid/composite primitives (e.g., X-Wing KEM/signatures) and layered protection. Full implementation pending internal audit for faithful spec adherence.
+
+For details, see the README. *Note: This is conceptual; sensitive details are in private dev.*
+
 ```mermaid
 graph TD
     MP["Master Password"] --> Argon["Argon2id KDF<br/>(high cost, bootstrap salt from encrypted config)"]
@@ -22,42 +28,42 @@ graph TD
         Attestation["Hardware Attestation<br/>(Android SafetyNet / iOS DeviceCheck / WEBAUTHN attestation)"]
     end
 
-    Keystore -.-> AutoCombine
-    Attestation -.-> AutoCombine
+    Keystore -.->|Optional| AutoCombine
+    Attestation -.->|Optional| AutoCombine
 
     PDK -.-> AutoCombine["Auto-Unlock Key<br/>(stored in keystore, protected by biometrics + optional attestation)"]
 
-    CombineExplicit --> BEK["Bootstrap Encryption Key<br/>(full strength)"]
-    CombineExplicit --> RootXWingSeed["Root X-Wing Seed<br/>(full strength)"]
+    CombineExplicit --> BEK["Bootstrap Encryption Key<br/>(full strength, PQ-protected)"]
+    CombineExplicit --> RootXWingSeed["Root X-Wing Seed<br/>(full strength, PQ-derived)"]
 
-    AutoCombine -.-> BEK
-    AutoCombine -.-> RootXWingSeed
+    AutoCombine -.->|Convenience| BEK
+    AutoCombine -.->|Convenience| RootXWingSeed
 
     BEK --> DecryptBootstrap["Decrypt Bootstrap File"]
-    ConfigEnc["config.enc<br/>(encrypted JSON blob storing:<br/>• Current Root X-Wing Ciphertext (~1120 bytes)<br/>• Argon2 bootstrap salt<br/>• Version/format info)"] --> DecryptBootstrap
-    DecryptBootstrap --> RootCT["Root X-Wing Ciphertext<br/>(top-level PQ wrapper)"]
+    ConfigEnc["config.enc<br/>(encrypted JSON: Root X-Wing CT (~1600 bytes)<br/>• Argon2 bootstrap salt<br/>• Version/format info)"] --> DecryptBootstrap
+    DecryptBootstrap --> RootCT["Root X-Wing Ciphertext<br/>(top-level PQ hybrid KEM wrapper)"]
 
-    RootXWingSeed --> StaticSK["Static Hybrid X-Wing Private Key<br/>(deterministically derived from seed)"]
+    RootXWingSeed --> StaticSK["Static Hybrid X-Wing Private Key<br/>(deterministic from seed)"]
 
-    StaticSK --> Decaps["X-Wing Decapsulation"]
+    StaticSK --> Decaps["X-Wing Decapsulation<br/>(PQ hybrid KEM)"]
     RootCT --> Decaps
-    Decaps --> RootKey["root.db SQLCipher PRAGMA Key<br/>(PQ-protected, recovered in memory)"]
+    Decaps --> RootKey["root.db SQLCipher PRAGMA Key<br/>(PQ-protected, in-memory)"]
 
-    RootKey --> rootDB["root.db<br/>(SQLCipher encrypted<br/>central key manager for downstream)"]
+    RootKey --> rootDB["root.db<br/>(SQLCipher encrypted<br/>central key manager)"]
 
-    rootDB --> VaultKey["vault.db PRAGMA salt + SQLCipher key<br/>(derived from root key)"]
-    rootDB --> IndexKey["index.db PRAGMA salt + SQLCipher key<br/>(derived from root key)"]
-    rootDB --> History["Rotation history, config, versions<br/>(historical X-Wing ciphertexts +<br/>historical seeds (separately protected)<br/>+ optional legacy ciphertexts)"]
+    rootDB --> VaultKey["vault.db PRAGMA salt + SQLCipher key<br/>(derived from root)"]
+    rootDB --> IndexKey["index.db PRAGMA salt + SQLCipher key<br/>(derived from root)"]
+    rootDB --> History["Rotation history, config, versions<br/>(historical X-Wing CTs + seeds (PQ-protected)<br/>+ optional legacy CTs)"]
 
     VaultKey --> vaultDB["vault.db<br/>(SQLCipher encrypted<br/>+ inner AES-256-GCM-SIV blobs<br/>Per-entry row keyed by file_id (UUIDv7))"]
     IndexKey --> indexDB["index.db<br/>(SQLCipher, metadata)<br/>Per-entry row keyed by file_id (UUIDv7)"]
 
     vaultDB -- "one-to-one relationship<br/>via file_id (UUIDv7)" --- indexDB
 
-    vaultDB --> SeedBlob["Per-File Static Seed Blob<br/>(CSRNG-sourced random seed<br/>encrypted with AES-256-GCM-SIV<br/>under key derived from root)"]
-    SeedBlob --> PerFileStatic["Per-File Static X-Wing Keypair<br/>(deterministic derivation from random seed)"]
-    PerFileStatic --> Ephemeral["Ephemeral X-Wing Encapsulation<br/>(per file version → forward secrecy)"]
-    Ephemeral --> Files["Encrypted Files"]
+    vaultDB --> SeedBlob["Per-File Static Seed Blob<br/>(CSRNG random seed<br/>encrypted with AES-256-GCM-SIV<br/>under root-derived key)"]
+    SeedBlob --> PerFileStatic["Per-File Static X-Wing Keypair<br/>(deterministic from random seed)"]
+    PerFileStatic --> Ephemeral["Ephemeral X-Wing Encapsulation<br/>(per file version → forward secrecy, PQ hybrid)"]
+    Ephemeral --> Files["Encrypted Files<br/>(AES-256-GCM or ChaCha20-Poly1305 payload)"]
 
     style MP fill:#333,stroke:#fff,color:#fff
     style Argon fill:#444,stroke:#fff,color:#fff

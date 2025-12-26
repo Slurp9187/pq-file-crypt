@@ -15,8 +15,10 @@ impl Ciphertext {
     }
 }
 
-/// Stub read header.
-/// Returns dummies; TODO: Parse full header, extract PQ CT, nonce, etc.
+/// Stub for PQ-File-Crypt header reading (dynamic for AES/Chacha, no-KDF).
+///
+/// TODO: Parse "PQ-CRYPT" magic, conditional KDF fields, extensions for cipher, PQ CT, nonce.
+/// For placeholder: Unimplemented.
 pub fn read_header<R: Read>(
     _reader: R,
 ) -> io::Result<(u8, Option<Salt16>, Ciphertext, GcmNonce12)> {

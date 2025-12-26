@@ -1,0 +1,38 @@
+[package]
+name = "pq-file-crypt"
+version = "0.1.0-placeholder"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "Placeholder for post-quantum secure file encryption crate. Full audited implementation pending."
+repository = "https://github.com/yourusername/pq-file-crypt"
+license = "MIT OR Apache-2.0"
+keywords = ["cryptography", "encryption", "post-quantum", "file", "streaming"]
+categories = ["cryptography", "file-system"]
+
+[dependencies]
+# Safe, battle-tested dependencies for placeholder
+argon2 = { version = "0.5", default-features = false, features = ["std"] }
+password-hash = "0.5"
+rand_core = "0.6"
+rand = { version = "0.8", features = ["std", "std_rng"] }
+
+# AES-GCM streaming implementation
+aes = "0.8"
+ghash = "0.5"
+generic-array = "0.14"
+typenum = "1.16"
+aes-gcm = "0.10"  # Added for aes.rs stub
+
+# Secure type aliases (assumed safe; replace if custom)
+
+
+[features]
+default = ["rand"]
+rand = []  # No-op for now; RNG enabled by rand dep
+
+# Future features for PQ crypto (stubbed)
+pq = []  # No-op for placeholder
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

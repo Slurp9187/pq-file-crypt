@@ -1,0 +1,13 @@
+pub mod aliases;
+pub mod common;
+pub mod streaming;
+pub use common::*;
+pub use streaming::StreamingAesGcm;
+pub mod crypto;
+pub use crypto::*;
+pub mod decryption;
+pub mod encryption;
+pub use decryption::decrypt;
+pub use decryption::read_header;
+pub use encryption::encrypt;
+pub use encryption::{write_header, HeaderParams};

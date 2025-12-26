@@ -15,7 +15,7 @@ Currently, only safe components (key derivation, streaming GCM, aliases) are imp
 ## Installation
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Slurp9187/pq-file-crypt
 cd pq-file-crypt
 cargo build
 ```
